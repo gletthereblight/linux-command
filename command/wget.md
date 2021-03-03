@@ -66,7 +66,7 @@ wget [参数] [URL地址]
 –random-wait 在下载之间等待0…2*WAIT秒
 -Y, –-proxy=on/off 打开或关闭代理
 -Q, –-quota=NUMBER 设置下载的容量限制
-–limit-rate=RATE 限定下载输率
+-–limit-rate=RATE 限定下载输率
 
 目录参数：
 
@@ -157,7 +157,7 @@ wget默认会以最后一个符合`/`的后面的字符来命令，对于动态�
 wget http://www.jsdig.com/download?id=1
 ```
 
-即使下载的文件是zip格式，它仍然以`download.php?id=1080`命令。
+即使下载的文件是zip格式，它仍然以`download.php?id=1080`命名。
 
 正确：为了解决这个问题，我们可以使用参数`-O`来指定一个文件名：
 

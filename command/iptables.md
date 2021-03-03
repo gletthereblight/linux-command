@@ -18,7 +18,7 @@ Linux上常用的防火墙软件
     - [防火墙的策略](#防火墙的策略)
     - [防火墙的策略](#防火墙的策略-1)
   - [实例](#实例)
-    - [空当前的所有规则和计数](#空当前的所有规则和计数)
+    - [清空当前的所有规则和计数](#清空当前的所有规则和计数)
     - [配置允许ssh端口连接](#配置允许ssh端口连接)
     - [允许本地回环地址可以正常使用](#允许本地回环地址可以正常使用)
     - [设置默认的规则](#设置默认的规则)
@@ -154,6 +154,7 @@ iptables还支持自己定义链。但是自己定义的链，必须是跟某种
 - **DNAT** ：目标地址转换。
 - **MASQUERADE** ：IP伪装（NAT），用于ADSL。
 - **LOG** ：日志记录。
+- **SEMARK** : 添加SEMARK标记以供网域内强制访问控制（MAC）
 
 ```shell
                              ┏╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┓
@@ -191,7 +192,7 @@ iptables还支持自己定义链。但是自己定义的链，必须是跟某种
 
 ### 实例
 
-#### 空当前的所有规则和计数
+#### 清空当前的所有规则和计数
 
 ```shell
 iptables -F  # 清空所有的防火墙规则
@@ -388,6 +389,12 @@ iptables -I INPUT -j DROP -p tcp -s 0.0.0.0/0 -m string --algo kmp --string "cmd
 
 ```shell
 iptables -A INPUT -p tcp --syn -m limit --limit 5/second -j ACCEPT
+```
+
+#### 添加SECMARK记录
+```shell
+iptables -t mangle -A INPUT -p tcp --src 192.168.1.2 --dport 443 -j SECMARK --selctx system_u:object_r:myauth_packet_t
+# 向从 192.168.1.2:443 以TCP方式发出到本机的包添加MAC安全上下文 system_u:object_r:myauth_packet_t
 ```
 
 ## 更多实例

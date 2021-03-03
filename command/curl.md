@@ -410,4 +410,83 @@ $ curl --trace - https://www.example.com
 curl ipecho.net/plain
 ```
 
+
+**使用 curl 测试网站加载速度**
+
+命令有一个鲜为人知的选项，`-w`，该选项在请求结束之后打印本次请求的统计数据到标准输出。
+
+首先，我们定义控制打印行为的格式化字符串。新建文本文件 `fmt.txt`，并填入下面的内容：
+
+```ruby
+\n
+Response Time for: %{url_effective}\n\n
+DNS Lookup Time:\t\t%{time_namelookup}s\n
+Redirection Time:\t\t%{time_redirect}s\n
+Connection Time:\t\t%{time_connect}s\n
+App Connection Time:\t\t%{time_appconnect}s\n
+Pre-transfer Time:\t\t%{time_pretransfer}s\n
+Start-transfer Time:\t\t%{time_starttransfer}s\n\n
+Total Time:\t\t\t%{time_total}s\n
+```
+
+curl 提供了很多置换变量，可以在格式化字符串中通过 `%{var}` 的形式使用。完整的变量列表可以在 `curl` 的 `manpage` 中查看。简单介绍一下我们使用的这几个变量：
+
+
+- `url_effective`: 执行完地址重定向之后的最终 URL；
+- `time_namelookup`: 从请求开始至完成名称解析所花的时间，单位为秒，下同；
+- `time_redirect`: 执行所有重定向所花的时间；
+- `time_connect`: 从请求开始至建立 TCP 连接所花的时间；
+- `time_appconnect`: 从请求开始至完成 SSL/SSH 握手所花的时间；
+- `time_pretransfer`: 从请求开始至服务器准备传送文件所花的时间，包含了传送协商时间；
+- `time_starttransfer`: 从请求开始至服务器准备传送第一个字节所花的时间；
+- `time_total`: 完整耗时。
+
+然后执行请求，通过 @filename 指定保存了格式化字符串的文件：
+
+```shell
+$ curl -L -s -w @fmt.txt -o /dev/null http://www.google.com
+```
+
+输出：
+
+```c
+Response Time for: http://www.google.co.jp/?gfe_rd=cr&dcr=0&ei=cjIaWpTkHeiQ8QfnxYzoBA
+
+DNS Lookup Time:        0.000038s
+Redirection Time:       0.207271s
+Connection Time:        0.000039s
+App Connection Time:    0.000039s
+Pre-transfer Time:      0.000067s
+Start-transfer Time:    0.260115s
+
+Total Time:             0.467691s
+```
+
+### 要求返回是压缩的状态
+
+```shell
+▶ curl --compressed -o- -L https://yarnpkg.com/install.sh | bash
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    54  100    54    0     0     42      0  0:00:01  0:00:01 --:--:--    42
+100  2341  100  2341    0     0   1202      0  0:00:01  0:00:01 --:--:--  9289
+Installing Yarn!
+> Downloading tarball...
+
+[1/2]: https://yarnpkg.com/latest.tar.gz --> /var/folders/j7/3xly5sk567s65ny5dnr__3b80000gn/T/yarn.tar.gz.XXXXXXXXXX.9hJsBsrA
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    57  100    57    0     0     72      0 --:--:-- --:--:-- --:--:--    72
+100    93  100    93    0     0     63      0  0:00:01  0:00:01 --:--:--    63
+100   643  100   643    0     0    248      0  0:00:02  0:00:02 --:--:--   707
+100 1215k  100 1215k    0     0   153k      0  0:00:07  0:00:07 --:--:--  305k
+
+[2/2]: https://yarnpkg.com/latest.tar.gz.asc --> /var/folders/j7/3xly5sk567s65ny5dnr__3b80000gn/T/yarn.tar.gz.XXXXXXXXXX.9hJsBsrA.asc
+100    61  100    61    0     0    356      0 --:--:-- --:--:-- --:--:--   356
+100    97  100    97    0     0    325      0 --:--:-- --:--:-- --:--:--   325
+100   647  100   647    0     0   1283      0 --:--:-- --:--:-- --:--:--  1283
+100   832  100   832    0     0   1107      0 --:--:-- --:--:-- --:--:--  812k
+```
+
+
 <!-- Linux命令行搜索引擎：https://jaywcjlove.github.io/linux-command/ -->
